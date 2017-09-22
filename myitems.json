@@ -1,0 +1,37 @@
+
+tr中class值为“provincetr”的所有td
+
+ class='provincetr'
+
+/tr[class='provincetr']/td
+//tr[@class='provincetr']/td/text()
+
+
+scrapy genspider mydomain mydomain.com
+
+
+
+
+
+
+
+
+    def parse(self, response):
+            torrent = TwoItem()
+            torrent.provinceName = response.xpath('//tr[@class="provincetr"]/td/a/text()')
+            torrent.provinceUrl = response.xpath('//tr[@class="provincetr"]/td/a[@href]')
+            yield torrent
+
+
+    provinceUrl = scrapy.Field()
+    provinceName = scrapy.Field()
+
+       torrent = MytwoItem()
+        torrent['provinceName'] = response.xpath("//tr[@class='provincetr']/td/a/text()")
+        torrent['provinceUrl'] = response.xpath("//tr[@class='provincetr']/td/a[@href]")
+        yield torrent
+
+
+
+
+start_urls = ['http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/index.html']
