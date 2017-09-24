@@ -38,8 +38,8 @@ class SpidertwoSpider(scrapy.Spider):
                 country_data['nextUrl'] = next_link
                 print('************************'+'\n'+next_link+'\n'+'************************')
                 # yield country_data
-                yield scrapy.Request(next_link, meta={'country_data': country_data}, callback=self.town_parse,
-                                     encoding='utf-8', dont_filter=True, priority=2)
+                # yield scrapy.Request(next_link, meta={'country_data': country_data}, callback=self.town_parse,
+                #                      encoding='utf-8', dont_filter=True, priority=2)
             # else:
             #     number = country_node.xpath('td[1]/text()').extract()
             #     name = country_node.xpath('td[2]/text()').extract()
