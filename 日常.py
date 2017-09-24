@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # __author__ = 'k.'
+import os
 
 def bublSort(arr):
     for i in range(1, len(arr)):
@@ -36,7 +37,8 @@ def insertSort(arr):
         arr[preIndex+1] = current
     return arr
 
-print(insertSort(a))
+baseurl = os.path.dirname( 'http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2015/45.html' )
+print(baseurl)
 
 
 

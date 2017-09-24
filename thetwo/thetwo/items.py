@@ -7,8 +7,10 @@
 
 import scrapy
 
-class HomeScrapyItem(scrapy.Item):
 
+class ThetwoItem(scrapy.Item):
+    # define the fields for your item here like:
+    # name = scrapy.Field()
     provinceName = scrapy.Field()  # 省/直辖市/自治区名称
 
     cityName = scrapy.Field()      # 市/区级名称
@@ -24,3 +26,5 @@ class HomeScrapyItem(scrapy.Item):
 
     streetName = scrapy.Field()   # 最后村级名称
 
+    countryUrlitem = scrapy.Field()
+    nextUrl = scrapy.Field()
