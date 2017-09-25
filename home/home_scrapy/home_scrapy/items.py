@@ -21,6 +21,6 @@ class HomeScrapyItem(scrapy.Item):
     townNumber = scrapy.Field()
 
     villageName = scrapy.Field()   # 街道/镇/村级名称
-
-    streetName = scrapy.Field()   # 最后村级名称
+    villageNumber = scrapy.Field()
+    villageCode = scrapy.Field()
 

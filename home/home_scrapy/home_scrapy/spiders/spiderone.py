@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import scrapy
 from home_scrapy.items import HomeScrapyItem
+import os
 
 
 class SpideroneSpider(scrapy.Spider):
@@ -26,58 +27,67 @@ class SpideroneSpider(scrapy.Spider):
 
     def city_parse(self, response):
         city_list = response.xpath('//tr[@class="citytr"]')
+        meta = response.meta['province_data']
         for city_node in city_list:
-            city_data = response.meta['province_data']
+            city_data = dict(meta)
             number = city_node.xpath('td[1]/a/text()').extract()
             name = city_node.xpath('td[2]/a/text()').extract()
             city_url = city_node.xpath('td[1]/a/@href').extract()
             city_data['cityNumber'] = number[0]
             city_data['cityName'] = name[0]
             country_url = self.baseUrl + str(city_url[0])
-            # yield city_data
             yield scrapy.Request(country_url, meta={'city_data': city_data}, callback=self.country_parse,
                                  encoding='utf-8', dont_filter=True)
             # 县
 
     def country_parse(self, response):
+        meta = response.meta['city_data']
         country_list = response.xpath('//tr[@class="countytr"]')
-        # response.xpath('//tr[@class="countytr"]/td/text()').extract()
         for country_node in country_list:
-            country_data = response.meta['city_data']
-            if not country_node.xpath('td/text()'):
+
+            if country_node.xpath('td/a/text()'):  # 此处if语句的判断耗时2小时，铭记。。
+                country_data = dict(meta)
                 number = country_node.xpath('td[1]/a/text()').extract()
                 name = country_node.xpath('td[2]/a/text()').extract()
                 country_data['countryNumber'] = number[0]
                 country_data['countryName'] = name[0]
-                yield country_data
+                country_url = country_node.xpath('td[1]/a/@href').extract()[0]
+                base_link = os.path.dirname(response.url)
+                next_link = '/'.join([base_link, country_url])
+                yield scrapy.Request(next_link, meta={'country_data': country_data}, callback=self.town_parse,
+                                     encoding='utf-8', dont_filter=True)
             else:
+                country_data = dict(meta)
                 number = country_node.xpath('td[1]/text()').extract()
                 name = country_node.xpath('td[2]/text()').extract()
                 country_data['countryNumber'] = number[0]
                 country_data['countryName'] = name[0]
                 yield country_data
 
-            # # else:
-            #     number = country_node.xpath('td[1]/a/text()').extract()
-            #     name = country_node.xpath('td[2]/a/text()').extract()
-            #     country_data['countryNumber'] = number[0]
-            #     country_data['countryName'] = name[0]
-            #     country_url = country_node.xpath('td[1]/a/@href').extract()
-            #     a = str(number[0])[0:2]
-            #     town_url = self.baseUrl + a + '/' +str(country_url[0])
-            #     yield country_data
-                # yield scrapy.Request(town_url, meta={'country_data': country_data}, callback=self.town_parse,
-                #                      encoding='utf-8', dont_filter=True)
-                # 乡
+    def town_parse(self, response):
+        meta = response.meta['country_data']
+        town_list = response.xpath('//tr[@class="towntr"]')
+        for town_node in town_list:
+            town_data = dict(meta)
+            number = town_node.xpath('td[1]/a/text()').extract()
+            name = town_node.xpath('td[2]/a/text()').extract()
+            town_data['townNumber'] = number[0]
+            town_data['townName'] = name[0]
+            town_url = town_node.xpath('td[1]/a/@href').extract()[0]
+            base_link = os.path.dirname(response.url)
+            next_link = '/'.join(([base_link, town_url]))
+            yield scrapy.Request(next_link, meta={'town_data': town_data}, callback=self.village_parse,
+                                 encoding='utf-8', dont_filter=True)
 
-    # def town_parse(self, response):
-    #     town_list = response.xpath('//tr[@class="towntr"]')
-    #     for town_node in town_list:
-    #         town_data = response.meta['country_data']
-    #         number = town_node.xpath('td[1]/a/text()').extract()
-    #         name = town_node.xpath('td[2]/a/text()').extract()
-    #         town_url = town_node.xpath('td[1]/a/@href').extract()
-    #         town_data['townNumber'] = number[0]
-    #         town_data['townName'] = name[0]
-    #         village_url = self.baseUrl + str(town_url[0])
-    #         yield town_data
+    def village_parse(self, response):
+        meta = response.meta['town_data']
+        village_list = response.xpath('//tr[@class="villagetr"]')
+        for village_node in village_list:
+            village_data = dict(meta)
+            number = village_node.xpath('td[1]/text()').extract()
+            code = village_node.xpath('td[2]/text()').extract()
+            name = village_node.xpath('td[3]/text()').extract()
+            village_data['villageNumber'] = number[0]
+            village_data['villageCode'] = code[0]
+            village_data['villageName'] = name[0]
+            yield village_data
