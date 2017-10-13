@@ -22,9 +22,11 @@ class ThetwoItem(scrapy.Item):
     townName = scrapy.Field()      # 乡/镇级名称
     townNumber = scrapy.Field()
 
-    villageName = scrapy.Field()   # 街道/镇/村级名称
+    villageNumber = scrapy.Field()   # 街道/镇/村级名称
+    villageCode = scrapy.Field()
+    villageName = scrapy.Field()   # 最后村级名称
 
-    streetName = scrapy.Field()   # 最后村级名称
 
-    countryUrlitem = scrapy.Field()
-    nextUrl = scrapy.Field()
+
+
+

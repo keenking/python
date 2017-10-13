@@ -8,37 +8,45 @@ class SpideroneSpider(scrapy.Spider):
     name = 'spiderone'
     allowed_domains = ['http://www.stats.gov.cn']
     baseUrl = 'http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/'
-    start_urls = ['http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/index.html']
+    # start_urls = ['http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/index.html']
+    start_urls = ['http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2016/43.html']
 
     # 省
-    def parse(self, response):
-        node_list = response.xpath('//tr[@class="provincetr"]/td/a')
-        for province_node in node_list:
-            province_data = HomeScrapyItem()
-            name = province_node.xpath('text()').extract()
-            url = province_node.xpath('@href').extract()
-            province_data['provinceName'] = name[0]
-            city_url = self.baseUrl + str(url[0])
-            print(city_url)
-            yield scrapy.Request(city_url, meta={'province_data': province_data}, callback=self.city_parse,
-                                 encoding='utf-8', dont_filter=True)
-
+    # def parse(self, response):
+    #     node_list = response.xpath('//tr[@class="provincetr"]/td/a')
+    #     for province_node in node_list:
+    #         province_data = HomeScrapyItem()
+    #         aname = province_node.xpath('text()').extract()
+    #         id = province_node.xpath('td[1]/a/text()').extract()
+    #         url = province_node.xpath('@href').extract()
+    #         province_data['aname'] = aname[0]
+    #         province_data['id'] = id[0]
+    #         province_data['lv'] = 2
+    #         province_data['pid'] = 0
+    #         city_url = self.baseUrl + str(url[0])
+    #         # yield scrapy.Request(city_url, meta={'province_data': province_data}, callback=self.city_parse,
+    #         #                      encoding='utf-8', dont_filter=True)
+    #         yield province_data
     # 市
 
-    def city_parse(self, response):
+    def parse(self, response):
         city_list = response.xpath('//tr[@class="citytr"]')
-        meta = response.meta['province_data']
+        city_data = HomeScrapyItem()
         for city_node in city_list:
-            city_data = dict(meta)
+            # city_data = dict(meta)
             number = city_node.xpath('td[1]/a/text()').extract()
             name = city_node.xpath('td[2]/a/text()').extract()
             city_url = city_node.xpath('td[1]/a/@href').extract()
-            city_data['cityNumber'] = number[0]
-            city_data['cityName'] = name[0]
+            city_data['id'] = number[0]
+            city_data['aname'] = name[0]
+            city_data['lv'] = 2
+            city_data['pid'] = 0
             country_url = self.baseUrl + str(city_url[0])
-            yield scrapy.Request(country_url, meta={'city_data': city_data}, callback=self.country_parse,
-                                 encoding='utf-8', dont_filter=True)
+            # yield scrapy.Request(country_url, meta={'city_data': city_data}, callback=self.country_parse,
+            #                      encoding='utf-8', dont_filter=True)
             # 县
+            yield city_data
+
 
     def country_parse(self, response):
         meta = response.meta['city_data']
